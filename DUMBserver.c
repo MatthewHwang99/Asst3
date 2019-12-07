@@ -78,6 +78,8 @@ int main(int argc, char** argv){
 	struct sockaddr_in server_addr; //set up server
 	int addrlen = sizeof(server_addr); //length of address
 	
+	memset(&server_addr, '0', sizeof(server_addr));
+	
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = INADDR_ANY;
 	server_addr.sin_port = htons(port);
@@ -92,19 +94,22 @@ int main(int argc, char** argv){
 	//listen to clients with a max number of client connections
 	int maxConnections = 10;
 	int list;
-	if((list = listen(sd, maxConnections)) < 0){
+	if((list = listen(sd, maxConnections)) == -1){
 		printf("Error: Listen failed.\n");
 		return 0;
 	}
 	
+	struct sockaddr_in client_addr;
 	int cd; //client descriptor
+	int clilen = sizeof(client_addr);
+	
 	//The server must keep running & accepting clients until cntrl+C is received to end it in the cmd line
 	signal(SIGINT, sigHandler);
 	while(1){
 		//
 		//accept client
 		printf("Waiting for clients...\n");
-		if((cd = accept(sd, (struct sockaddr*)&server_addr, (socklen_t*)&addrlen)) == -1){
+		if((cd = accept(sd, (struct sockaddr*)&client_addr, &clilen)) == -1){
 			printf("Error: Accept failed.\n");
 			return 0;
 		}
@@ -130,7 +135,7 @@ int main(int argc, char** argv){
 
 void* test_func(void* args){
 
-	printf("Test_func\n");
+	printf("Reached test_func\n");
 	pthread_exit(NULL);
 
 	
