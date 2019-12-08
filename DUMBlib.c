@@ -1,8 +1,9 @@
 #include"DUMB.h"
 
-int sendMessage(int cd, char* msg){
+//send a message given a socket descriptor
+int sendMessage(int sd, char* msg){
 	int valread = 0; int i = 0;
-	while((valread = write(cd, &msg[i], 1)) == 1){
+	while((valread = write(sd, &msg[i], 1)) == 1){
 		if(valread == -1 || valread == 0){
 			//error
 			printf("Error while writing message. Socket may have closed.\n");
@@ -17,9 +18,10 @@ int sendMessage(int cd, char* msg){
 	return 1;
 }
 
-char* readMessage(int cd, char* msg){
+//receive a message | msg is predefined (buffer)
+char* readMessage(int sd, char* msg){
 	int valread = 0; int i = 0;
-	while((valread = read(cd, &msg[i], 1)) == 1){
+	while((valread = read(sd, &msg[i], 1)) == 1){
 		if(valread == -1 || valread == 0){
 			//error
 			printf("Error while reading message. Socket may have closed.\n");
@@ -32,4 +34,11 @@ char* readMessage(int cd, char* msg){
 	}
 	
 	return msg;
+}
+
+int checkExistingBoxName(char* name){
+	struct messageBox temp = boxList;
+	if(temp == NULL){
+		
+	}
 }
