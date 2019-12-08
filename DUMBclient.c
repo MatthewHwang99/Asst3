@@ -12,6 +12,18 @@
 int commandCheck(char*);
 void help();
 void quit(int);
+int nameCheck(char*);
+
+int nameCheck(char* name){
+  int size = strlen(name);
+  char first = name[0];
+  if(size >= 5 && size <= 25 && ((first >= 'A' && first <= 'Z') || (first >= 'a' && first <= 'z'))){
+    //valid name
+    return 0;
+  }
+  //invalid name
+  return 1;
+}
 
 void quit(int socket){
   shutdown(socket, 2);
@@ -47,7 +59,7 @@ int commandCheck(char* command){
 
 int main(int argc, char** argv){
   char buffer[1024] = {0};
-  char command[1024] = {0};
+  char *command;
   char arg[1024] = {0};
   if(argc!=3){
   	printf("Error: Please input an IP address or hostname followed by a port number.\n");
@@ -93,7 +105,7 @@ int main(int argc, char** argv){
   printf("%s\n", buffer);
   while(1){
     //want to stay in this loop until we recieve Goodbye command
-    printf("Enter a command:\n>");
+    printf("> ");
     scanf("%s", command);
     if(commandCheck(command) == 0){
       //help, List of commands
@@ -106,20 +118,28 @@ int main(int argc, char** argv){
       //create
       printf("%s:> ", command);
       scanf("%s", arg);
+      if(nameCheck(arg)){
+	printf("Error. %s isn't a valid name.\n", arg);
+	continue;
+      }
       command = "CREAT ";
       strcat(command, arg);
-      sendmessage(sd, command);
+      sendMessage(sd, command);
     }else if(commandCheck(command) == 3){
       //open
       printf("%s:> ", command);
       scanf("%s", arg);
+      if(nameCheck(arg)){
+	printf("Error. %s isn't a valid name.\n", arg);
+	continue;
+      }
       command = "OPNBX ";
       strcat(command, arg);
-      sendmessage(sd, command);
+      sendMessage(sd, command);
     }else if(commandCheck(command) == 4){
       //next
       command = "NXTMG";
-      sendmessage(sd, command);      
+      sendMessage(sd, command);      
     }else if(commandCheck(command) == 5){
       //put
       printf("%s:> ", command);
@@ -130,15 +150,33 @@ int main(int argc, char** argv){
       strcat(size, "!");
       strcat(command, size);
       strcat(command, arg);
-      sendmessage(sd, command);      
+      sendMessage(sd, command);      
     }else if(commandCheck(command) == 6){
       //delete
-      
+      printf("%s:> ", command);
+      scanf("%s", arg);
+      if(nameCheck(arg)){
+	printf("Error. %s isn't a valid name.\n", arg);
+	continue;
+      }
+      command = "DELBX ";
+      strcat(command, arg);
+      sendMessage(sd, command);
     }else if(commandCheck(command) == 7){
       //close
+      printf("%s:> ", command);
+      scanf("%s", arg);
+      if(nameCheck(arg)){
+	printf("Error. %s isn't a valid name.\n", arg);
+	continue;
+      }
+      command = "CLSBX ";
+      strcat(command, arg);
+      sendMessage(sd, command);
     }else if(commandCheck(command) == -1){
       //Not a valid command or messed up the correct sytanx
-      //ER:WHAT?
+      printf("Error. Your command is invalid\n");
+      continue;
     }
     
   }
