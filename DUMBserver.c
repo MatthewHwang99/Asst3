@@ -14,33 +14,7 @@
 #include<errno.h>
 #include<signal.h>
 
-struct thread{
-	pthread_t* th;
-	int sd;
-	int retval;
-};
-
-struct threadNode{
-	struct thread* client;
-	struct threadNode* next;
-};
-
-struct message{
-	char* msg;
-	struct message* next;
-};
-
-struct messageBox{
-	char* boxName;
-	struct message* mymsg;
-	struct messageBox* next;
-};
-
-struct messageBox boxList = NULL;
-
-void* receiveCommands(void*);
-void sigHandler(int);
-void addClient(struct thread*);
+struct messageBox* boxList = NULL;
 
 //server will maintain a list of all the clients that are currently connected
 struct threadNode* clientList = NULL;
@@ -146,6 +120,25 @@ int main(int argc, char** argv){
 	return 0;
 }
 
+void CREAT(char* name){
+	struct messageBox* newBox = (struct messageBox*)malloc(sizeof(struct messageBox));
+	newBox->boxName = name;
+	newBox->next = NULL;
+	if(boxList == NULL){
+		boxList = newBox;
+	}else{
+		struct messageBox* temp = boxList;
+		
+		while(temp->next!=NULL){
+			temp = temp->next;
+		}
+		
+		temp->next = newBox;
+	}
+	
+	return;
+}
+
 void* receiveCommands(void* args){
 	struct thread* client = (struct thread*)args;
 	int sd = client->sd;
@@ -168,28 +161,31 @@ void* receiveCommands(void* args){
 	while(1){
 		readMessage(sd, action);
 		
-		char[5] command;
+		char command[5];
 		strncpy(command, action, 5);
 	
 		if(strcmp(command, "GDBYE") == 0){
-			close(sd);
-			pthread_exit(NULL);
+			break;
 		}else if(strcmp(command, "CREAT") == 0){
 			char* boxName = &action[6];
-			
+			if(checkExistingBoxName(boxName, boxList) == 1){
+				CREAT(boxName);
+				sendMessage(sd, "OK!\n");
+			}else{
+				sendMessage(sd, "ER:EXIST\n");
+			}
 		}else if(strcmp(command, "OPNBX") == 0){
-			return 2;
+		
 		}else if(strcmp(command, "NXTMG") == 0){
-			return 3;
+			
 		}else if(strcmp(command, "PUTMG") == 0){
-			return 4;
+			
 		}else if(strcmp(command, "DELBX") == 0){
 	
 		}else if(strcmp(command, "CLSBX") == 0){
 	
 		}else{
-			printf("Error. Incorrect command.\n");
-			return -1;
+			sendMessage(sd, "ER:WHAT?\n");
 		}
 	}
 	
