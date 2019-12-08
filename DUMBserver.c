@@ -31,9 +31,12 @@ struct message{
 };
 
 struct messageBox{
+	char* boxName;
 	struct message* mymsg;
 	struct messageBox* next;
 };
+
+struct messageBox boxList = NULL;
 
 void* receiveCommands(void*);
 void sigHandler(int);
@@ -165,23 +168,28 @@ void* receiveCommands(void* args){
 	while(1){
 		readMessage(sd, action);
 		
-		if(strcmp(command,"quit") == 0){ //E.1 GDBYE
-		
-		}else if(strcmp(command,"create") == 0){ //E.2 CREAT arg0
+		char[5] command;
+		strncpy(command, action, 5);
 	
-		}else if(strcmp(command,"open") == 0){ //E.3 OPNBX arg0
+		if(strcmp(command, "GDBYE") == 0){
+			close(sd);
+			pthread_exit(NULL);
+		}else if(strcmp(command, "CREAT") == 0){
+			char* boxName = &action[6];
+			
+		}else if(strcmp(command, "OPNBX") == 0){
+			return 2;
+		}else if(strcmp(command, "NXTMG") == 0){
+			return 3;
+		}else if(strcmp(command, "PUTMG") == 0){
+			return 4;
+		}else if(strcmp(command, "DELBX") == 0){
 	
-		}else if(strcmp(command,"next") == 0){ //E.4 NXTMG
-	
-		}else if(strcmp(command,"put") == 0){ //E.5 PUTMG!arg0!msg
-	
-		}else if(strcmp(command,"delete") == 0){ //E.6 DELBX arg0
-	
-		}else if(strcmp(command,"close") == 0){ //E.7 CLSBX arg0
+		}else if(strcmp(command, "CLSBX") == 0){
 	
 		}else{
-			printf("Error: Command not recognized.\n");
-			pthread_exit(NULL);
+			printf("Error. Incorrect command.\n");
+			return -1;
 		}
 	}
 	
