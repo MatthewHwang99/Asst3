@@ -17,4 +17,7 @@
 #include<netinet/in.h>
 #include<math.h>
 
+int sendMessage(int, char*);
+char* readMessage(int, char*);
+
 #endif

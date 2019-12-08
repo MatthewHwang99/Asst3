@@ -1,3 +1,4 @@
+#include"DUMB.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include<sys/socket.h>
@@ -7,22 +8,20 @@
 #include<string.h>
 #include<strings.h>
 #include<unistd.h>
-//#define h_addr h_addr_list[0]
 
-void test_func(int);
 int commandCheck(char*);
 void help();
 void quit(int);
 
 void quit(int socket){
   shutdown(socket, 2);
-  return 0;
+  return;
 }
 
 void help(){
   printf("List of commands:\n");
   printf("--help\n--quit\n--create\n--open\n--next\n--put\n--delete\n--close\n");
-  return 0;
+  return;
 }
 
 int commandCheck(char* command){
@@ -47,20 +46,9 @@ int commandCheck(char* command){
 }
 
 int main(int argc, char** argv){
-  /*struct addrinfo hints, *addrinfo;
-  char buffer[1024] = {0};
-  int valread;
-  hints.ai_family = AF_UNSPEC;
-  hints.ai_socktype = SOCK_STREAM;
-  addrinfo = getaddrinfo(argv[1], argv[2], &hints, &addrinfo);
-  int sockfd = socket(addrinfo->ai_family, addrinfo->ai_socktype, 0);
-  connect(sockfd, addrinfo->ai.addr, addrinfo->ai.addrlen);
-  send(sockfd, HELLO, strlen(HELLO), 0);
-  printf("HELLO message sent\n");
-  valread = read(sockfd, buffer, 1024);
-  printf("%s\n", buffer);*/
   char buffer[1024] = {0};
   char command[1024] = {0};
+  
   if(argc!=3){
   	printf("Error: Please input an IP address or hostname followed by a port number.\n");
   	return 0;
@@ -71,7 +59,7 @@ int main(int argc, char** argv){
   
   struct sockaddr_in server_addr, client;
   int sd, connection, validAddr, valread;
-  char* buffer[1024] = {0};
+  //char buffer[1024] = {0};
   
   //establish socket
   if((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1){
@@ -90,11 +78,14 @@ int main(int argc, char** argv){
   }
  
   //E.0 HELLO
-  send(sd, "HELLO", strlen("HELLO"), 0);
-  read(sd, buffer, 1024);
+
+  char* msg = "HELLO\0";
+  sendMessage(sd, msg);
+  readMessage(sd, buffer);
+  
   if(strcmp(buffer, "HELLO DUMBv0 ready!") != 0){
     //CLOSE CONNECTION
-    printf("Error: Failed to get the correct initial response from the server."\n);
+    printf("Error: Failed to get the correct initial response from the server.\n");
     shutdown(sd, 2);
     return 0;
   }

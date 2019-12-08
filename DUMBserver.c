@@ -1,6 +1,6 @@
 //DUMB server
 
-//#include"DUMB.h"
+#include"DUMB.h"
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -25,7 +25,17 @@ struct threadNode{
 	struct threadNode* next;
 };
 
-void* test_func(void*);
+struct message{
+	char* msg;
+	struct message* next;
+};
+
+struct messageBox{
+	struct message* mymsg;
+	struct messageBox* next;
+};
+
+void* receiveCommands(void*);
 void sigHandler(int);
 void addClient(struct thread*);
 
@@ -108,13 +118,13 @@ int main(int argc, char** argv){
 	while(1){
 		//
 		//accept client
-		printf("Waiting for clients...\n");
+		//printf("Waiting for clients...\n");
 		if((cd = accept(sd, (struct sockaddr*)&client_addr, &clilen)) == -1){
 			printf("Error: Accept failed.\n");
 			return 0;
 		}
 		
-		printf("Client found.\n");
+		//printf("Client found.\n");
 		
 		//create thread for each unique client
 		struct thread* ct = (struct thread*)malloc(sizeof(struct thread)); //client thread structure to hold info about ea. thread
@@ -123,7 +133,7 @@ int main(int argc, char** argv){
 		ct->sd = cd;
 		
 		int pthread; //catch errors (to respond to client errors? not sure yet)
-		if((pthread = pthread_create(clientThread, NULL, test_func, (void*)ct)) == -1){
+		if((pthread = pthread_create(clientThread, NULL, receiveCommands, (void*)ct)) == -1){
 			printf("Error: %d Message%s\n", errno, strerror(errno));
 		}
 		
@@ -133,11 +143,49 @@ int main(int argc, char** argv){
 	return 0;
 }
 
-void* test_func(void* args){
-
-	printf("Reached test_func\n");
-	pthread_exit(NULL);
-
+void* receiveCommands(void* args){
+	struct thread* client = (struct thread*)args;
+	int sd = client->sd;
+	char* action = (char*)malloc(sizeof(char)*100);
+	char* command = (char*)malloc(sizeof(char)*10);
+	char* msg;
+	int valread, i;
 	
+	readMessage(sd, action);
+	
+	//E0: HELLO
+	if(strcmp(action,"HELLO") == 0){
+		msg = "HELLO DUMBv0 ready!";
+		sendMessage(sd, msg);
+	}else{
+		printf("Error: HELLO was not detected. Closing connection.\n");
+		pthread_exit(NULL);
+	}
+	
+	while(1){
+		readMessage(sd, action);
+		
+		if(strcmp(command,"quit") == 0){ //E.1 GDBYE
+		
+		}else if(strcmp(command,"create") == 0){ //E.2 CREAT arg0
+	
+		}else if(strcmp(command,"open") == 0){ //E.3 OPNBX arg0
+	
+		}else if(strcmp(command,"next") == 0){ //E.4 NXTMG
+	
+		}else if(strcmp(command,"put") == 0){ //E.5 PUTMG!arg0!msg
+	
+		}else if(strcmp(command,"delete") == 0){ //E.6 DELBX arg0
+	
+		}else if(strcmp(command,"close") == 0){ //E.7 CLSBX arg0
+	
+		}else{
+			printf("Error: Command not recognized.\n");
+			pthread_exit(NULL);
+		}
+	}
+	
+	close(sd);
+	pthread_exit(NULL);
 }
 
