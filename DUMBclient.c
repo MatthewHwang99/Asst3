@@ -127,10 +127,13 @@ int main(int argc, char** argv){
       command = "PUTMG!";
       char* size;
       sprintf(size, "%d", strlen(arg));
+      strcat(size, "!");
+      strcat(command, size);
       strcat(command, arg);
       sendmessage(sd, command);      
     }else if(commandCheck(command) == 6){
       //delete
+      
     }else if(commandCheck(command) == 7){
       //close
     }else if(commandCheck(command) == -1){
