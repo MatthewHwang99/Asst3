@@ -48,7 +48,7 @@ int commandCheck(char* command){
 int main(int argc, char** argv){
   char buffer[1024] = {0};
   char command[1024] = {0};
-  
+  char arg[1024] = {0};
   if(argc!=3){
   	printf("Error: Please input an IP address or hostname followed by a port number.\n");
   	return 0;
@@ -104,19 +104,38 @@ int main(int argc, char** argv){
       break;
     }else if(commandCheck(command) == 2){
       //create
-      
+      printf("%s:> ", command);
+      scanf("%s", arg);
+      command = "CREAT ";
+      strcat(command, arg);
+      sendmessage(sd, command);
     }else if(commandCheck(command) == 3){
       //open
+      printf("%s:> ", command);
+      scanf("%s", arg);
+      command = "OPNBX ";
+      strcat(command, arg);
+      sendmessage(sd, command);
     }else if(commandCheck(command) == 4){
       //next
+      command = "NXTMG";
+      sendmessage(sd, command);      
     }else if(commandCheck(command) == 5){
       //put
+      printf("%s:> ", command);
+      scanf("%s", arg);
+      command = "PUTMG!";
+      char* size;
+      sprintf(size, "%d", strlen(arg));
+      strcat(command, arg);
+      sendmessage(sd, command);      
     }else if(commandCheck(command) == 6){
       //delete
     }else if(commandCheck(command) == 7){
       //close
     }else if(commandCheck(command) == -1){
       //Not a valid command or messed up the correct sytanx
+      //ER:WHAT?
     }
     
   }
