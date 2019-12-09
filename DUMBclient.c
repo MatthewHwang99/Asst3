@@ -11,8 +11,65 @@
 
 int commandCheck(char*);
 void help();
-void quit(int);
 int nameCheck(char*);
+char* errorChecker(char*);
+char* commandSwitch(char*);
+
+char* commandSwitch(char* command){
+  char* ret = (char*)malloc(6);
+  int i;
+  for(i = 0; i < 5; i++){
+    ret[i] = command[i];
+  }
+  ret[6] = '\0';
+  return ret;
+}
+
+//int successCheck(char*);
+/*Function for when the server returns "OK!"
+int successCheck(char* command){
+  char* protocol[6];
+  int i;
+  for(i = 0; i < 5; i++){
+    protocol[i] = command[i];
+  }
+  protocol[6] = '\0';
+  if(strcmp(protocol, "CREAT") == 0){
+    printf("Box was created successfully.\n");
+  }else if(strcmp(protocol, "DELBX") == 0){
+    printf("Box was deleted.\n");
+  }else if(strcmp(protocol, "OPNBX") == 0){
+    printf("Box is now open.\n");
+  }else if(strcmp(protocol, "CLSBX") == 0){
+    printf("You have closed a box.\n");
+  }else if(strcmp(protocol, "NXTMG") == 0){
+    printf("");
+  }else if(strcmp(protocol, "PUTMG") == 0){
+    printf("");
+  }
+}
+*/
+char* errorChecker(char* ret){
+  char* returnval;
+  if(strcmp(ret, "ER:WHAT?") == 0){
+    returnval = "Your message is in some way broken or malformed.\n";
+  }else if(strcmp(ret, "ER:EXIST") == 0){
+    returnval = "A box with that name already exists and it can not be created again.\n";
+  }if(strcmp(ret, "ER:NEXST") == 0){
+    returnval = "A box with that name already exists, so it can not be opened.\n";
+  }else if(strcmp(ret, "ER:OPEND") == 0){
+    returnval = "A box with that name is currently opened by another use, so you can not open it.\n";
+  }if(strcmp(ret, "ER:EMPTY") == 0){
+    returnval = "There are no messages left in this message box.\n";
+  }else if(strcmp(ret, "ER:NOOPN") == 0){
+    returnval = "You currently have no message box open.\n";
+  }if(strcmp(ret, "ER:NOTMT") == 0){
+    returnval = "The box you are attempting to delete is not empty and still has messages.\n";
+  }else{
+    returnval = "OK!";
+  }
+  return returnval;
+}
 
 int nameCheck(char* name){
   int size = strlen(name);
@@ -23,11 +80,6 @@ int nameCheck(char* name){
   }
   //invalid name
   return 1;
-}
-
-void quit(int socket){
-  shutdown(socket, 2);
-  return;
 }
 
 void help(){
@@ -98,7 +150,7 @@ int main(int argc, char** argv){
   if(strcmp(buffer, "HELLO DUMBv0 ready!") != 0){
     //CLOSE CONNECTION
     printf("Error: Failed to get the correct initial response from the server.\n");
-    shutdown(sd, 2);
+    close(sd);
     return 0;
   }
 
@@ -112,7 +164,7 @@ int main(int argc, char** argv){
       help();
     }else if(commandCheck(command) == 1){
       //quit
-      quit(sd);
+      close(sd);
       break;
     }else if(commandCheck(command) == 2){
       //create
@@ -178,9 +230,31 @@ int main(int argc, char** argv){
       printf("Error. Your command is invalid\n");
       continue;
     }
-    
+    readMessage(sd, buffer);
+    if(strcmp("OK!", errorChecker(buffer)) == 0){
+      command = commandSwitch(command);
+      if(strcmp(command, "CREAT") == 0){
+	printf("Box successfully created.\n");
+      }else if(strcmp(command, "OPNBX") == 0){
+	printf("Box successfully opened.\n");
+      }else if(strcmp(command, "NXTMG") == 0){
+	char* token = strtok(buffer, "!");
+	int i;
+	for(i = 0; i < 2; i++){
+	  token = strtok(NULL, "!");
+	}
+	printf("%s\n", token);
+      }else if(strcmp(command, "PUTMG") == 0){
+	printf("Message successfully put\n");
+      }else if(strcmp(command, "DELBX") == 0){
+	printf("Successfully deleted a message box.\n");
+      }else if(strcmp(command, "CLSBX") == 0){
+	printf("Successfully closed box.\n");
+      }
+    }else{
+      printf("%s\n", errorChecker(buffer));
+    }
   }
-
 
   return 0;
 }
