@@ -196,8 +196,9 @@ void* receiveCommands(void* args){
 		readMessage(sd, action);
 		
 		status = 0;
-		char command[5];
+		char command[6];
 		strncpy(command, action, 5);
+		command[5] = '\0';
 	
 		if(strcmp(command, "GDBYE") == 0){
 			break;
