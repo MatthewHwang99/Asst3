@@ -124,6 +124,8 @@ void CREAT(char* name){
 	struct messageBox* newBox = (struct messageBox*)malloc(sizeof(struct messageBox));
 	newBox->boxName = name;
 	newBox->next = NULL;
+	newBox->open = 0; //before we implement mutexes
+	newBox->empty = 0; //initially has no msgs
 	if(boxList == NULL){
 		boxList = newBox;
 	}else{
@@ -137,6 +139,36 @@ void CREAT(char* name){
 	}
 	
 	return;
+}
+
+int OPNBX(char* name){
+	
+	return 1; //success
+}
+
+int NXTMG();
+
+int DELBX(char* name){
+	struct messageBox* temp = boxList;
+	struct messageBox* prev = NULL;
+	while(temp->next!=NULL){
+		if(temp->boxName == name){
+			if(temp->empty == 0){ //box is not empty
+				return -1;
+			}else if(temp->open == 1){ //box is currently opened by another user
+				return -2;
+			}else{
+				break;
+			}
+		}else{
+			prev = temp;
+			temp = temp->next;
+		}
+	}
+	
+	prev->next = temp->next;
+	free(temp);
+	return 1;
 }
 
 void* receiveCommands(void* args){
@@ -158,9 +190,12 @@ void* receiveCommands(void* args){
 		pthread_exit(NULL);
 	}
 	
+	int status;
+	
 	while(1){
 		readMessage(sd, action);
 		
+		status = 0;
 		char command[5];
 		strncpy(command, action, 5);
 	
@@ -170,18 +205,42 @@ void* receiveCommands(void* args){
 			char* boxName = &action[6];
 			if(checkExistingBoxName(boxName, boxList) == 1){
 				CREAT(boxName);
-				sendMessage(sd, "OK!\n");
+				sendMessage(sd, "OK!");
 			}else{
-				sendMessage(sd, "ER:EXIST\n");
+				sendMessage(sd, "ER:EXIST");
 			}
 		}else if(strcmp(command, "OPNBX") == 0){
-		
+			char* boxName = &action[6];
+			status = checkExistingBoxName(boxName, boxList);
+			if(status == 1){
+				status = OPNBX(boxName);
+				if(status == 1){
+					sendMessage(sd, "OK!");
+				}else{
+					sendMessage(sd, "ER:OPEND");
+				}
+			}else{
+				sendMessage(sd, "ER:NEXST");
+			}
 		}else if(strcmp(command, "NXTMG") == 0){
 			
 		}else if(strcmp(command, "PUTMG") == 0){
 			
 		}else if(strcmp(command, "DELBX") == 0){
-	
+			char* boxName = &action[6];
+			status = checkExistingBoxName(boxName, boxList);
+			if(status == 1){
+				status = DELBX(boxName);
+				if(status == 1){
+					sendMessage(sd, "OK!");
+				}else if(status == -1){
+					sendMessage(sd, "ER:NOTMT");
+				}else{
+					sendMessage(sd, "ER:OPEND");
+				}
+			}else{
+				sendMessage(sd, "ER:NEXST\n");
+			}
 		}else if(strcmp(command, "CLSBX") == 0){
 	
 		}else{

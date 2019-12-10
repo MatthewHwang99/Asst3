@@ -39,16 +39,16 @@ char* readMessage(int sd, char* msg){
 int checkExistingBoxName(char* name, struct messageBox* boxList){
 	struct messageBox* temp = boxList;
 	if(temp == NULL){
-		return 1; //name doesn't exist
+		return -1; //name doesn't exist
 	}
 	
 	while(temp!=NULL){
 		if(strcmp(temp->boxName, name) == 0){
-			return -1;
+			return 1;
 		}else{
 			temp = temp->next;
 		}
 	}
 	
-	return 1;
+	return -1;
 }

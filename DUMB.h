@@ -39,6 +39,7 @@ struct messageBox{
 	char* boxName;
 	struct message* mymsg;
 	struct messageBox* next;
+	int open; int empty;
 };
 
 //functions used by server
