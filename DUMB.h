@@ -47,6 +47,7 @@ void* receiveCommands(void*);
 void sigHandler(int);
 void addClient(struct thread*);
 int checkExistingBoxName(char*, struct messageBox*);
+void pop(int, struct messageBox*);
 
 //lib functions
 int sendMessage(int, char*);

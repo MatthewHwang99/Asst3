@@ -192,13 +192,16 @@ int DELBX(char* name){
 	return 1;
 }
 //gets message from queue and sends to client
-void pop(struct messageBox* ptr){
+void pop(int sd, struct messageBox* ptr){
   struct message* temp = ptr->mymsg;
   char* retval = "OK!";
-  strcat(retval, itoa(strlen(temp->msg)));
+  int len = strlen(temp->msg);
+  char* length;
+  sprintf(length, "%d", len);
+  strcat(retval, length);
   strcat(retval, "!");
   strcat(retval, temp->msg);
-  sendmessage(sd, retval);
+  sendMessage(sd, retval);
   ptr->mymsg = temp->next;
   free(temp);
   return;
@@ -263,7 +266,7 @@ void* receiveCommands(void* args){
 		  }else if(current->mymsg == NULL){
 		    sendMessage(sd, "ER:EMPTY");
 		  }else{
-		    pop(current);
+		    pop(sd, current);
 		  }
 		}else if(strcmp(command, "PUTMG") == 0){
 		  
