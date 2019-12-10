@@ -141,9 +141,30 @@ void CREAT(char* name){
 	return;
 }
 
+struct messageBox* getBX(char* name){
+  struct messageBox *ptr = (struct messageBox*)malloc(sizeof(struct messageBox));
+  while(ptr != NULL){
+    if(strcmp(ptr->boxName, name) == 0){
+      return ptr;
+    }
+    ptr = ptr->next;
+  }
+  //Should never get to here
+  return NULL;
+}
+
+
 int OPNBX(char* name){
-	
-	return 1; //success
+  struct messageBox *ptr = (struct messageBox*)malloc(sizeof(struct messageBox));
+  while(ptr != NULL){
+    if(strcmp(ptr->boxName, name) == 0 && ptr->open == 0){
+      //found the box and it isn't currently open
+      return 1;
+    }
+    ptr = ptr->next;
+  }
+  //the box is open
+  return 0;
 }
 
 int NXTMG();
@@ -170,6 +191,18 @@ int DELBX(char* name){
 	free(temp);
 	return 1;
 }
+//gets message from queue and sends to client
+void pop(struct messageBox* ptr){
+  struct message* temp = ptr->mymsg;
+  char* retval = "OK!";
+  strcat(retval, itoa(strlen(temp->msg)));
+  strcat(retval, "!");
+  strcat(retval, temp->msg);
+  sendmessage(sd, retval);
+  ptr->mymsg = temp->next;
+  free(temp);
+  return;
+}
 
 void* receiveCommands(void* args){
 	struct thread* client = (struct thread*)args;
@@ -191,7 +224,7 @@ void* receiveCommands(void* args){
 	}
 	
 	int status;
-	
+	struct messageBox* current = (struct messageBox*)malloc(sizeof(struct messageBox));
 	while(1){
 		readMessage(sd, action);
 		
@@ -216,6 +249,7 @@ void* receiveCommands(void* args){
 				status = OPNBX(boxName);
 				if(status == 1){
 					sendMessage(sd, "OK!");
+					current = getBX(boxName);
 				}else{
 					sendMessage(sd, "ER:OPEND");
 				}
@@ -223,9 +257,15 @@ void* receiveCommands(void* args){
 				sendMessage(sd, "ER:NEXST");
 			}
 		}else if(strcmp(command, "NXTMG") == 0){
-			
+		  if(current == NULL){
+		    sendMessage(sd, "ER:NOOPN");
+		  }else if(current->mymsg == NULL){
+		    sendMessage(sd, "ER:EMPTY");
+		  }else{
+		    pop(current);
+		  }
 		}else if(strcmp(command, "PUTMG") == 0){
-			
+		  
 		}else if(strcmp(command, "DELBX") == 0){
 			char* boxName = &action[6];
 			status = checkExistingBoxName(boxName, boxList);

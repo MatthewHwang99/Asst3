@@ -89,7 +89,7 @@ void help(){
 }
 
 int commandCheck(char* command){
-  if(strcmp(command, "help")){
+  if(strcmp(command, "help\0")){
     return 0;
   }else if(strcmp(command, "quit")){
     return 1;
