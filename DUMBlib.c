@@ -2,10 +2,10 @@
 
 //send a message given a socket descriptor
 int sendMessage(int sd, char* msg){
-  printf("hi\n");
+  //printf("hi\n");
 	int valread = 0; int i = 0;
 	while((valread = write(sd, &msg[i], 1)) == 1){
-	  printf("hi\n");
+	 //printf("hi\n");
 		if(valread == -1 || valread == 0){
 			//error
 			printf("Error while writing message. Socket may have closed.\n");

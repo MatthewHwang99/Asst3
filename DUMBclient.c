@@ -9,7 +9,7 @@
 #include<strings.h>
 #include<unistd.h>
 
-int commandCheck(char*);
+int commandCheck(char*);	
 void help();
 int nameCheck(char*);
 char* errorChecker(char*);
@@ -111,7 +111,7 @@ int commandCheck(char* command){
 
 int main(int argc, char** argv){
   char buffer[1024] = {0};
-  char *command;
+  char command[1024] = {0};
   char arg[1024] = {0};
   if(argc!=3){
   	printf("Error: Please input an IP address or hostname followed by a port number.\n");
@@ -158,7 +158,7 @@ int main(int argc, char** argv){
   while(1){
     //want to stay in this loop until we recieve Goodbye command
     printf("> ");
-    scanf("%s", command);
+    scanf("%s", &command);
     if(commandCheck(command) == 0){
       //help, List of commands
       help();
