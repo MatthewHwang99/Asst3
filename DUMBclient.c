@@ -111,7 +111,7 @@ int commandCheck(char* command){
 
 int main(int argc, char** argv){
   char buffer[1024] = {0};
-  char command[1024] = {0};
+  char *command;
   char arg[1024] = {0};
   if(argc!=3){
   	printf("Error: Please input an IP address or hostname followed by a port number.\n");
