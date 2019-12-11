@@ -112,7 +112,7 @@ int commandCheck(char* command){
 int main(int argc, char** argv){
   char buffer[1024] = {0};
   char *command = (char*)malloc(sizeof(char) * 1024);
-  char arg[1024] = {0};
+  char *arg = (char*)malloc(sizeof(char) * 1024);
   if(argc!=3){
   	printf("Error: Please input an IP address or hostname followed by a port number.\n");
   	return 0;
@@ -162,6 +162,7 @@ int main(int argc, char** argv){
     if(commandCheck(command) == 0){
       //help, List of commands
       help();
+      continue;
     }else if(commandCheck(command) == 1){
       //quit
       close(sd);
@@ -175,8 +176,10 @@ int main(int argc, char** argv){
 	continue;
       }
       command = "CREAT ";
-      strcat(command, arg);
-      sendMessage(sd, command);
+      char* newcommand = (char*)malloc(strlen(command) + strlen(arg));
+      strcat(newcommand, command);
+      strcat(newcommand, arg);
+      sendMessage(sd, newcommand);
     }else if(commandCheck(command) == 3){
       //open
       printf("%s:> ", command);
