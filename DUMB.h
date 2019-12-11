@@ -39,7 +39,7 @@ struct messageBox{
 	char* boxName;
 	struct message* mymsg;
 	struct messageBox* next;
-	int open; int empty;
+	pthread_mutex_t box_lock;
 };
 
 //functions used by server

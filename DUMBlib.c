@@ -93,7 +93,7 @@ char* errorChecker(char* ret){
     returnval = "A box with that name does not exist, so it can not be opened.\n";
     return returnval;
   }else if(strcmp(ret, "ER:OPEND") == 0){
-    returnval = "A box with that name is currently opened by another use, so you can not open it.\n";
+    returnval = "A box with that name is currently opened by another user, so you can not open it.\n";
     return returnval;
   }if(strcmp(ret, "ER:EMPTY") == 0){
     returnval = "There are no messages left in this message box.\n";

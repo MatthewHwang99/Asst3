@@ -140,8 +140,11 @@ void CREAT(char* name){
 	struct messageBox* newBox = (struct messageBox*)malloc(sizeof(struct messageBox));
 	newBox->boxName = name;
 	newBox->next = NULL;
-	newBox->open = 0; //before we implement mutexes
-	newBox->empty = 0; //initially has no msgs
+	newBox->mymsg = NULL;
+	pthread_mutex_t lock;
+	pthread_mutex_init(&lock, NULL);
+	newBox->box_lock = lock;
+	
 	if(boxList == NULL){
 		boxList = newBox;
 	}else{
@@ -158,7 +161,7 @@ void CREAT(char* name){
 }
 
 struct messageBox* getBX(char* name){
-  struct messageBox *ptr = (struct messageBox*)malloc(sizeof(struct messageBox));
+  struct messageBox *ptr = boxList;
   while(ptr != NULL){
     if(strcmp(ptr->boxName, name) == 0){
       return ptr;
@@ -171,41 +174,105 @@ struct messageBox* getBX(char* name){
 
 
 int OPNBX(char* name){
-  struct messageBox *ptr = boxList;
-  while(ptr != NULL){
-    if(strcmp(ptr->boxName, name) == 0 && ptr->open == 0){
-      //found the box and it isn't currently open
-      return 1;
-    }
-    ptr = ptr->next;
-  }
-  //the box is open
-  return 0;
+	struct messageBox *ptr = boxList;
+	while(ptr != NULL){
+    	if(strcmp(ptr->boxName, name) == 0){
+			break;
+    	}else{
+    		ptr = ptr->next;
+    	}
+ 	}
+ 	
+ 	if(pthread_mutex_trylock(&ptr->box_lock) == 0){
+ 		//box was unlocked, give the lock to the client
+ 		//pthread_mutex_lock(&ptr->box_lock);
+ 		return 1;
+ 	}else{
+ 		return -1;
+ 	}
+ 	
+ 	
 }
 
-int NXTMG();
+int PUTMG(char* name, char* msg){
+	struct messageBox* temp = boxList;
+	
+	while(temp!=NULL){
+		if(temp->boxName == name){
+			break;
+		}else{
+			temp = temp->next;
+		}
+	}
+	
+	struct message* msgs = temp->mymsg;
+	struct message* newmsg = (struct message*)malloc(sizeof(struct message));
+	newmsg->msg = msg;
+	newmsg->next = NULL;
+	
+	if(msgs == NULL){ //currently no messages in the message box, this will be the first message
+		msgs = newmsg;
+	}else{
+		struct message* prevmsg = NULL;
+		while(msgs!=NULL){ //go to the last msg in the list AKA queue
+			prevmsg = msgs;
+			msgs = msgs->next;
+		}
+		
+		prevmsg->next = newmsg;
+	}
+	
+	return 1;
+}
 
 int DELBX(char* name){
 	struct messageBox* temp = boxList;
 	struct messageBox* prev = NULL;
 	while(temp->next!=NULL){
 		if(temp->boxName == name){
-			if(temp->empty == 0){ //box is not empty
-				return -1;
-			}else if(temp->open == 1){ //box is currently opened by another user
-				return -2;
-			}else{
-				break;
-			}
+			break;
 		}else{
 			prev = temp;
 			temp = temp->next;
 		}
 	}
 	
-	prev->next = temp->next;
-	free(temp);
-	return 1;
+	if(pthread_mutex_trylock(&temp->box_lock) == 0){
+		pthread_mutex_unlock(&temp->box_lock);
+		if(temp->mymsg == NULL){
+			return -2;
+		}
+		if(prev == NULL){
+			//the only messageBox was deleted
+			boxList = NULL;
+			free(temp);
+			return 1;
+		}else{
+			prev->next = temp->next;
+			free(temp);
+			return 1;
+		}
+	}else{
+		return -1; //box is already open/locked
+	}
+}
+
+int CLSBX(char* name){
+	struct messageBox *ptr = boxList;
+	while(ptr != NULL){
+    	if(strcmp(ptr->boxName, name) == 0){
+			break;
+    	}else{
+    		ptr = ptr->next;
+    	}
+ 	}
+ 	
+ 	if(pthread_mutex_unlock(&ptr->box_lock) == 0){
+ 		//box was locked by the client
+ 		return 1;
+ 	}else{
+ 		return -1;
+ 	}
 }
 
 void* receiveCommands(void* args){
@@ -229,7 +296,9 @@ void* receiveCommands(void* args){
 	}
 	
 	int status;
-	struct messageBox* current = (struct messageBox*)malloc(sizeof(struct messageBox));
+	struct messageBox* current = NULL;
+	pthread_mutex_t cli_lock;
+	
 	while(1){
 		readMessage(sd, action);
 		
@@ -253,6 +322,12 @@ void* receiveCommands(void* args){
 		}else if(strcmp(command, "OPNBX") == 0){
 			char* boxName = &action[6];
 			status = checkExistingBoxName(boxName, boxList);
+			
+			//Occurs if the box already has a box open, therefore it cannot open another box
+			if(current!=NULL){
+				sendMessage(sd, "ER:BXOPN");
+			}
+			
 			if(status == 1){
 				status = OPNBX(boxName);
 				if(status == 1){
@@ -273,28 +348,36 @@ void* receiveCommands(void* args){
 		    	pop(sd, current);
 		  	}
 		}else if(strcmp(command, "PUTMG") == 0){
-		 	 if(current == NULL){
+		 	if(current == NULL){
 		  	 	sendMessage(sd, "ER:NOOPN");
 		  	}else{
-		  	 	pop(sd, current);
+		  	 	//parse the string here: PUTMG!12!Oh hai, Mark!
 		 	}
 		}else if(strcmp(command, "DELBX") == 0){
 			char* boxName = &action[6];
 			status = checkExistingBoxName(boxName, boxList);
 			if(status == 1){
 				status = DELBX(boxName);
-				if(status == 1){
+				if(status == 1){ //box successfully deleted
 					sendMessage(sd, "OK!");
-				}else if(status == -1){
-					sendMessage(sd, "ER:NOTMT");
-				}else{
+				}else if(status == -1){  //box is already opened/locked
 					sendMessage(sd, "ER:OPEND");
+				}else{ //box is not empty
+					sendMessage(sd, "ER:NOTMT");
 				}
 			}else{
 				sendMessage(sd, "ER:NEXST\n");
 			}
 		}else if(strcmp(command, "CLSBX") == 0){
-	
+			char* boxName = &action[6];
+			status = checkExistingBoxName(boxName, boxList);
+			if(status == 1){
+				status = CLSBX(boxName);
+				sendMessage(sd, "OK!");
+				current = NULL;
+			}else{
+				sendMessage(sd, "ER:NOOPN");
+			}
 		}else{
 			sendMessage(sd, "ER:WHAT?\n");
 		}

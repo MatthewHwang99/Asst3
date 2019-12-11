@@ -145,12 +145,14 @@ int main(int argc, char** argv){
       printf("%s:> ", command);
       scanf("%s", arg);
       if(nameCheck(arg)){
-	printf("Error. %s isn't a valid name.\n", arg);
-	continue;
+		printf("Error. %s isn't a valid name.\n", arg);
+		continue;
       }
       command = "DELBX ";
-      strcat(command, arg);
-      sendMessage(sd, command);
+      char* newcommand = (char*)malloc(strlen(command) + strlen(arg)+1);
+      strcat(newcommand, command);
+      strcat(newcommand, arg);
+      sendMessage(sd, newcommand);
     }else if(commandCheck(command) == 7){
       //close
       printf("%s:> ", command);
@@ -160,8 +162,10 @@ int main(int argc, char** argv){
 	continue;
       }
       command = "CLSBX ";
-      strcat(command, arg);
-      sendMessage(sd, command);
+      char* newcommand = (char*)malloc(strlen(command) + strlen(arg)+1);
+      strcat(newcommand, command);
+      strcat(newcommand, arg);
+      sendMessage(sd, newcommand);
     }else if(commandCheck(command) == -1){
       //Not a valid command or messed up the correct sytanx
       printf("Error. Your command is invalid\n");
@@ -176,24 +180,24 @@ int main(int argc, char** argv){
       }else if(strcmp(command, "OPNBX") == 0){
 		printf("Box successfully opened.\n");
       }else if(strcmp(command, "NXTMG") == 0){
-	char* token = strtok(buffer, "!");
-	int i;
-	for(i = 0; i < 2; i++){
-	  token = strtok(NULL, "!");
-	}
-	printf("%s\n", token);
+		char* token = strtok(buffer, "!");
+		int i;
+		for(i = 0; i < 2; i++){
+	 	 token = strtok(NULL, "!");
+		}
+		printf("%s\n", token);
       }else if(strcmp(command, "PUTMG") == 0){
-	printf("Message successfully put\n");
+		printf("Message successfully put\n");
       }else if(strcmp(command, "DELBX") == 0){
-	printf("Successfully deleted a message box.\n");
+		printf("Successfully deleted a message box.\n");
       }else if(strcmp(command, "CLSBX") == 0){
-	printf("Successfully closed box.\n");
+		printf("Successfully closed box.\n");
       }
     }else{
       printf("%s", errorChecker(buffer));
     }
-    
-    memset(command, 0, strlen(command));
+    	
+    //memset(command, 0, strlen(command));
     //memset(arg, 0, strlen(arg));
 
   }
