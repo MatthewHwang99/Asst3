@@ -53,18 +53,25 @@ char* errorChecker(char* ret){
   char* returnval;
   if(strcmp(ret, "ER:WHAT?") == 0){
     returnval = "Your message is in some way broken or malformed.\n";
+    return returnval;
   }else if(strcmp(ret, "ER:EXIST") == 0){
     returnval = "A box with that name already exists and it can not be created again.\n";
+    return returnval;
   }if(strcmp(ret, "ER:NEXST") == 0){
-    returnval = "A box with that name already exists, so it can not be opened.\n";
+    returnval = "A box with that name does not exist, so it can not be opened.\n";
+    return returnval;
   }else if(strcmp(ret, "ER:OPEND") == 0){
     returnval = "A box with that name is currently opened by another use, so you can not open it.\n";
+    return returnval;
   }if(strcmp(ret, "ER:EMPTY") == 0){
     returnval = "There are no messages left in this message box.\n";
+    return returnval;
   }else if(strcmp(ret, "ER:NOOPN") == 0){
     returnval = "You currently have no message box open.\n";
+    return returnval;
   }if(strcmp(ret, "ER:NOTMT") == 0){
     returnval = "The box you are attempting to delete is not empty and still has messages.\n";
+    return returnval;
   }else{
     returnval = "OK!";
   }
@@ -185,12 +192,14 @@ int main(int argc, char** argv){
       printf("%s:> ", command);
       scanf("%s", arg);
       if(nameCheck(arg)){
-	printf("Error. %s isn't a valid name.\n", arg);
-	continue;
+		printf("Error. %s isn't a valid name.\n", arg);
+		continue;
       }
       command = "OPNBX ";
-      strcat(command, arg);
-      sendMessage(sd, command);
+      char* newcommand = (char*)malloc(strlen(command) + strlen(arg));
+      strcat(newcommand, command);
+      strcat(newcommand, arg);
+      sendMessage(sd, newcommand);
     }else if(commandCheck(command) == 4){
       //next
       command = "NXTMG";
@@ -233,13 +242,14 @@ int main(int argc, char** argv){
       printf("Error. Your command is invalid\n");
       continue;
     }
+    memset(buffer,0,strlen(buffer));
     readMessage(sd, buffer);
     if(strcmp("OK!", errorChecker(buffer)) == 0){
       command = commandSwitch(command);
       if(strcmp(command, "CREAT") == 0){
-	printf("Box successfully created.\n");
+		printf("Box successfully created.\n");
       }else if(strcmp(command, "OPNBX") == 0){
-	printf("Box successfully opened.\n");
+		printf("Box successfully opened.\n");
       }else if(strcmp(command, "NXTMG") == 0){
 	char* token = strtok(buffer, "!");
 	int i;
@@ -255,7 +265,7 @@ int main(int argc, char** argv){
 	printf("Successfully closed box.\n");
       }
     }else{
-      printf("%s\n", errorChecker(buffer));
+      printf("%s", errorChecker(buffer));
     }
   }
 

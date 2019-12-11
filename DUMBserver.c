@@ -43,7 +43,22 @@ void addClient(struct thread* client){
 
 //catches sig int, then closes all threads
 void sigHandler(int sig){
-	printf("\nSignal %d was caught. Closing server now.\n", sig);
+	//if(sig == 2){
+		printf("\nSignal %d was caught. Closing server now.\n", sig);
+		struct threadNode* cliLL = clientList;
+		if(cliLL == NULL){
+			exit(0);
+		}else{
+			while(cliLL!=NULL){
+			struct thread* cli = cliLL->client;
+			pthread_t* thc = cli->th;
+			pthread_join(*thc, NULL);
+			cliLL = cliLL->next;
+			}
+			exit(0);
+		}
+	//}
+	
 	exit(0);
 }
 
@@ -91,9 +106,10 @@ int main(int argc, char** argv){
 	int clilen = sizeof(client_addr);
 	
 	//The server must keep running & accepting clients until cntrl+C is received to end it in the cmd line
-	signal(SIGINT, sigHandler);
+	
 	while(1){
-		//
+		signal(SIGPIPE, SIG_IGN);
+		signal(SIGINT, sigHandler);
 		//accept client
 		//printf("Waiting for clients...\n");
 		if((cd = accept(sd, (struct sockaddr*)&client_addr, &clilen)) == -1){
