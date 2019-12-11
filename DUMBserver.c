@@ -171,7 +171,7 @@ struct messageBox* getBX(char* name){
 
 
 int OPNBX(char* name){
-  struct messageBox *ptr = (struct messageBox*)malloc(sizeof(struct messageBox));
+  struct messageBox *ptr = boxList;
   while(ptr != NULL){
     if(strcmp(ptr->boxName, name) == 0 && ptr->open == 0){
       //found the box and it isn't currently open

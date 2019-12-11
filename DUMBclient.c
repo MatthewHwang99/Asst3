@@ -193,7 +193,7 @@ int main(int argc, char** argv){
       printf("%s", errorChecker(buffer));
     }
     
-    //memset(command, 0, strlen(command));
+    memset(command, 0, strlen(command));
     //memset(arg, 0, strlen(arg));
 
   }
