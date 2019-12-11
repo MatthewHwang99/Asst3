@@ -269,7 +269,11 @@ void* receiveCommands(void* args){
 		    pop(sd, current);
 		  }
 		}else if(strcmp(command, "PUTMG") == 0){
-		  
+		  if(current == NULL){
+		    sendMessage(sd, "ER:NOOPN");
+		  }else{
+		    pop(sd, current);
+		  }
 		}else if(strcmp(command, "DELBX") == 0){
 			char* boxName = &action[6];
 			status = checkExistingBoxName(boxName, boxList);

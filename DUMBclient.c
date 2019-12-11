@@ -89,21 +89,21 @@ void help(){
 }
 
 int commandCheck(char* command){
-  if(strcmp(command, "help\0")){
+  if(strcmp(command, "help\0") == 0){
     return 0;
-  }else if(strcmp(command, "quit")){
+  }else if(strcmp(command, "quit") == 0){
     return 1;
-  }else if(strcmp(command, "create")){
+  }else if(strcmp(command, "create") == 0){
     return 2;
-  }else if(strcmp(command, "open")){
+  }else if(strcmp(command, "open") == 0){
     return 3;
-  }else if(strcmp(command, "next")){
+  }else if(strcmp(command, "next") == 0){
     return 4;
-  }else if(strcmp(command, "put")){
+  }else if(strcmp(command, "put") == 0){
     return 5;
-  }else if(strcmp(command, "delete")){
+  }else if(strcmp(command, "delete") == 0){
     return 6;
-  }else if(strcmp(command, "close")){
+  }else if(strcmp(command, "close") == 0){
     return 7;
   }
   return -1;
@@ -111,7 +111,7 @@ int commandCheck(char* command){
 
 int main(int argc, char** argv){
   char buffer[1024] = {0};
-  char *command;
+  char *command = (char*)malloc(sizeof(char) * 1024);
   char arg[1024] = {0};
   if(argc!=3){
   	printf("Error: Please input an IP address or hostname followed by a port number.\n");
@@ -158,7 +158,7 @@ int main(int argc, char** argv){
   while(1){
     //want to stay in this loop until we recieve Goodbye command
     printf("> ");
-    scanf("%s", &command);
+    scanf("%s", command);
     if(commandCheck(command) == 0){
       //help, List of commands
       help();
