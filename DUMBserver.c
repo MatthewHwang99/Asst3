@@ -67,9 +67,11 @@ void printBoxes(){
 	if(temp == NULL){
 		printf("Empty.\n");
 	}else{
+		int i = 1;
 		while(temp != NULL){
-			printf("Box: %s\n", temp->boxName);
+			printf("Box(%d): %s --> ", i, temp->boxName);
 			temp = temp->next;
+			i++;
 		}
 	}
 	
@@ -314,21 +316,22 @@ void* receiveCommands(void* args){
 	pthread_mutex_t cli_lock;
 	
 	while(1){
-		//printBoxes();
 		memset(action, 0, 100);
 		readMessage(sd, action);
+		//printBoxes();
 		
 		status = 0;
-		char command[6];
+		char* command = malloc(10);
 		strncpy(command, action, 5);
 		command[5] = '\0';
 		
-		printf("Received: %s\n", action);
+		//printf("Received: %s\n", action);
 	
 		if(strcmp(command, "GDBYE") == 0){
 			break;
 		}else if(strcmp(command, "CREAT") == 0){
-			char* boxName = &action[6];
+			char* boxName = malloc(strlen(action));
+			strcpy(boxName, &action[6]);
 			if(checkExistingBoxName(boxName, boxList) == -1){
 				CREAT(boxName);
 				sendMessage(sd, "OK!");
@@ -336,7 +339,8 @@ void* receiveCommands(void* args){
 				sendMessage(sd, "ER:EXIST");
 			}
 		}else if(strcmp(command, "OPNBX") == 0){
-			char* boxName = &action[6];
+			char* boxName = malloc(strlen(action));
+			strcpy(boxName, &action[6]);
 			status = checkExistingBoxName(boxName, boxList);
 			
 			//Occurs if the box already has a box open, therefore it cannot open another box
@@ -370,7 +374,8 @@ void* receiveCommands(void* args){
 		  	 	//parse the string here: PUTMG!12!Oh hai, Mark!
 		 	}
 		}else if(strcmp(command, "DELBX") == 0){
-			char* boxName = &action[6];
+			char* boxName = malloc(strlen(action));
+			strcpy(boxName, &action[6]);
 			status = checkExistingBoxName(boxName, boxList);
 			if(status == 1){
 				status = DELBX(boxName);
@@ -385,7 +390,8 @@ void* receiveCommands(void* args){
 				sendMessage(sd, "ER:NEXST\n");
 			}
 		}else if(strcmp(command, "CLSBX") == 0){
-			char* boxName = &action[6];
+			char* boxName = malloc(strlen(action));
+			strcpy(boxName, &action[6]);
 			status = checkExistingBoxName(boxName, boxList);
 			if(status == 1){
 				status = CLSBX(boxName);
