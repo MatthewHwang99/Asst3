@@ -71,16 +71,6 @@ void pop(int sd, struct messageBox* ptr){
   return;
 }
 
-char* commandSwitch(char* command){
-  char* ret = (char*)malloc(6);
-  int i;
-  for(i = 0; i < 5; i++){
-    ret[i] = command[i];
-  }
-  ret[6] = '\0';
-  return ret;
-}
-
 char* errorChecker(char* ret){
   char* returnval;
   if(strcmp(ret, "ER:WHAT?") == 0){
@@ -127,35 +117,15 @@ void help(){
   return;
 }
 
-int commandCheck(char* command){
-  if(strcmp(command, "help\0") == 0){
-    return 0;
-  }else if(strcmp(command, "quit") == 0){
-    return 1;
-  }else if(strcmp(command, "create") == 0){
-    return 2;
-  }else if(strcmp(command, "open") == 0){
-    return 3;
-  }else if(strcmp(command, "next") == 0){
-    return 4;
-  }else if(strcmp(command, "put") == 0){
-    return 5;
-  }else if(strcmp(command, "delete") == 0){
-    return 6;
-  }else if(strcmp(command, "close") == 0){
-    return 7;
-  }
-  return -1;
+
+char* createCommand(char* command, char* arg0){
+	char* res = malloc(strlen(command)+strlen(arg0)+1);
+	
+	strcpy(res, command);
+	strcat(res, arg0);
+	
+	return res;
 }
 
-int convertHostname(char* hostname){
-	struct hostent* h;
-	
-	h = gethostbyname(hostname);
-	char* ip = inet_ntoa(*((struct in_addr*)h->h_addr_list[0]));
-	
-	
-	return atoi(ip);
-}
 
 

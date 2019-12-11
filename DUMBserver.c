@@ -62,6 +62,20 @@ void sigHandler(int sig){
 	exit(0);
 }
 
+void printBoxes(){
+	struct messageBox* temp = boxList;
+	if(temp == NULL){
+		printf("Empty.\n");
+	}else{
+		while(temp != NULL){
+			printf("Box: %s\n", temp->boxName);
+			temp = temp->next;
+		}
+	}
+	
+	return;
+}
+
 int main(int argc, char** argv){
 	if(argc!=2){
 		printf("Error: Please enter a port number.\n");
@@ -300,6 +314,8 @@ void* receiveCommands(void* args){
 	pthread_mutex_t cli_lock;
 	
 	while(1){
+		//printBoxes();
+		memset(action, 0, 100);
 		readMessage(sd, action);
 		
 		status = 0;
@@ -307,7 +323,7 @@ void* receiveCommands(void* args){
 		strncpy(command, action, 5);
 		command[5] = '\0';
 		
-		printf("Command: %s\n", command);
+		printf("Received: %s\n", action);
 	
 		if(strcmp(command, "GDBYE") == 0){
 			break;

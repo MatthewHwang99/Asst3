@@ -105,23 +105,25 @@ int main(int argc, char** argv){
     close(sd);
     return 0;
   }
+	
+	char* str;
 
   printf("%s\n", buffer);
   while(1){
     //want to stay in this loop until we recieve Goodbye command
     printf("> ");
     scanf("%s", command);
-    if(commandCheck(command) == 0){
+    if(strcmp(command, "help") == 0){
       //help, List of commands
       help();
       continue;
-    }else if(commandCheck(command) == 1){
+    }else if(strcmp(command, "quit") == 0){
       //quit
-      command = "GDBYE";
-      sendMessage(sd, command);
+      str = "GDBYE";
+      sendMessage(sd, str);
       close(sd);
       break;
-    }else if(commandCheck(command) == 2){
+    }else if(strcmp(command, "create") == 0){
       //create
       printf("%s:> ", command);
       scanf("%s", arg);
@@ -129,14 +131,11 @@ int main(int argc, char** argv){
 		printf("Error. %s isn't a valid name.\n", arg);
 		continue;
       }
-      command = "CREAT ";
-      int argsize = 6+strlen(arg)+1;
-      char* newcommand = (char*)malloc(argsize);
-      strcat(newcommand, command);
-      strcat(newcommand, arg);
-      newcommand[argsize-1]='\0';
+      str = "CREAT ";
+      char* newcommand = createCommand(str, arg);
+            
       sendMessage(sd, newcommand);
-    }else if(commandCheck(command) == 3){
+    }else if(strcmp(command, "open") == 0){
       //open
       printf("%s:> ", command);
       scanf("%s", arg);
@@ -144,16 +143,14 @@ int main(int argc, char** argv){
 		printf("Error. %s isn't a valid name.\n", arg);
 		continue;
       }
-      command = "OPNBX ";
-      char* newcommand = (char*)malloc(strlen(command) + strlen(arg)+1);
-      strcat(newcommand, command);
-      strcat(newcommand, arg);
+      str = "OPNBX ";
+      char* newcommand = createCommand(str, arg);
       sendMessage(sd, newcommand);
-    }else if(commandCheck(command) == 4){
+    }else if(strcmp(command, "next") == 0){
       //next
       command = "NXTMG";
       sendMessage(sd, command);      
-    }else if(commandCheck(command) == 5){
+    }else if(strcmp(command, "put") == 0){
       //put
       printf("%s:> ", command);
       scanf("%s", arg);
@@ -164,7 +161,7 @@ int main(int argc, char** argv){
       strcat(command, size);
       strcat(command, arg);
       sendMessage(sd, command);      
-    }else if(commandCheck(command) == 6){
+    }else if(strcmp(command, "delete") == 0){
       //delete
       printf("%s:> ", command);
       scanf("%s", arg);
@@ -172,12 +169,10 @@ int main(int argc, char** argv){
 		printf("Error. %s isn't a valid name.\n", arg);
 		continue;
       }
-      command = "DELBX ";
-      char* newcommand = (char*)malloc(strlen(command) + strlen(arg)+1);
-      strcat(newcommand, command);
-      strcat(newcommand, arg);
+      str = "DELBX ";
+      char* newcommand = createCommand(str, arg);
       sendMessage(sd, newcommand);
-    }else if(commandCheck(command) == 7){
+    }else if(strcmp(command, "close")){
       //close
       printf("%s:> ", command);
       scanf("%s", arg);
@@ -185,20 +180,18 @@ int main(int argc, char** argv){
 	printf("Error. %s isn't a valid name.\n", arg);
 	continue;
       }
-      command = "CLSBX ";
-      char* newcommand = (char*)malloc(strlen(command) + strlen(arg)+1);
-      strcat(newcommand, command);
-      strcat(newcommand, arg);
+      str = "CLSBX ";
+      char* newcommand = createCommand(str, arg);
       sendMessage(sd, newcommand);
-    }else if(commandCheck(command) == -1){
+    }else{
       //Not a valid command or messed up the correct sytanx
       printf("Error. Your command is invalid\n");
       continue;
     }
-    memset(buffer,0,strlen(buffer));
+    
     readMessage(sd, buffer);
+    
     if(strcmp("OK!", errorChecker(buffer)) == 0){
-      command = commandSwitch(command);
       if(strcmp(command, "CREAT") == 0){
 		printf("Box successfully created.\n");
       }else if(strcmp(command, "OPNBX") == 0){
