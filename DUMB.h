@@ -49,7 +49,14 @@ void addClient(struct thread*);
 int checkExistingBoxName(char*, struct messageBox*);
 void pop(int, struct messageBox*);
 
-//lib functions
+//functions used by client
+int commandCheck(char*);	
+void help();
+int nameCheck(char*);
+char* errorChecker(char*);
+char* commandSwitch(char*);
+
+//used by both
 int sendMessage(int, char*);
 char* readMessage(int, char*);
 

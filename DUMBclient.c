@@ -9,21 +9,7 @@
 #include<strings.h>
 #include<unistd.h>
 
-int commandCheck(char*);	
-void help();
-int nameCheck(char*);
-char* errorChecker(char*);
-char* commandSwitch(char*);
 
-char* commandSwitch(char* command){
-  char* ret = (char*)malloc(6);
-  int i;
-  for(i = 0; i < 5; i++){
-    ret[i] = command[i];
-  }
-  ret[6] = '\0';
-  return ret;
-}
 
 //int successCheck(char*);
 /*Function for when the server returns "OK!"
@@ -49,72 +35,7 @@ int successCheck(char* command){
   }
 }
 */
-char* errorChecker(char* ret){
-  char* returnval;
-  if(strcmp(ret, "ER:WHAT?") == 0){
-    returnval = "Your message is in some way broken or malformed.\n";
-    return returnval;
-  }else if(strcmp(ret, "ER:EXIST") == 0){
-    returnval = "A box with that name already exists and it can not be created again.\n";
-    return returnval;
-  }if(strcmp(ret, "ER:NEXST") == 0){
-    returnval = "A box with that name does not exist, so it can not be opened.\n";
-    return returnval;
-  }else if(strcmp(ret, "ER:OPEND") == 0){
-    returnval = "A box with that name is currently opened by another use, so you can not open it.\n";
-    return returnval;
-  }if(strcmp(ret, "ER:EMPTY") == 0){
-    returnval = "There are no messages left in this message box.\n";
-    return returnval;
-  }else if(strcmp(ret, "ER:NOOPN") == 0){
-    returnval = "You currently have no message box open.\n";
-    return returnval;
-  }if(strcmp(ret, "ER:NOTMT") == 0){
-    returnval = "The box you are attempting to delete is not empty and still has messages.\n";
-    return returnval;
-  }else{
-    returnval = "OK!";
-  }
-  return returnval;
-}
 
-int nameCheck(char* name){
-  int size = strlen(name);
-  char first = name[0];
-  if(size >= 5 && size <= 25 && ((first >= 'A' && first <= 'Z') || (first >= 'a' && first <= 'z'))){
-    //valid name
-    return 0;
-  }
-  //invalid name
-  return 1;
-}
-
-void help(){
-  printf("List of commands:\n");
-  printf("--help\n--quit\n--create\n--open\n--next\n--put\n--delete\n--close\n");
-  return;
-}
-
-int commandCheck(char* command){
-  if(strcmp(command, "help\0") == 0){
-    return 0;
-  }else if(strcmp(command, "quit") == 0){
-    return 1;
-  }else if(strcmp(command, "create") == 0){
-    return 2;
-  }else if(strcmp(command, "open") == 0){
-    return 3;
-  }else if(strcmp(command, "next") == 0){
-    return 4;
-  }else if(strcmp(command, "put") == 0){
-    return 5;
-  }else if(strcmp(command, "delete") == 0){
-    return 6;
-  }else if(strcmp(command, "close") == 0){
-    return 7;
-  }
-  return -1;
-}
 
 int main(int argc, char** argv){
   char buffer[1024] = {0};
@@ -172,6 +93,8 @@ int main(int argc, char** argv){
       continue;
     }else if(commandCheck(command) == 1){
       //quit
+      command = "GDBYE";
+      sendMessage(sd, command);
       close(sd);
       break;
     }else if(commandCheck(command) == 2){
@@ -179,13 +102,15 @@ int main(int argc, char** argv){
       printf("%s:> ", command);
       scanf("%s", arg);
       if(nameCheck(arg)){
-	printf("Error. %s isn't a valid name.\n", arg);
-	continue;
+		printf("Error. %s isn't a valid name.\n", arg);
+		continue;
       }
       command = "CREAT ";
-      char* newcommand = (char*)malloc(strlen(command) + strlen(arg));
+      int argsize = 6+strlen(arg)+1;
+      char* newcommand = (char*)malloc(argsize);
       strcat(newcommand, command);
       strcat(newcommand, arg);
+      newcommand[argsize-1]='\0';
       sendMessage(sd, newcommand);
     }else if(commandCheck(command) == 3){
       //open
@@ -196,7 +121,7 @@ int main(int argc, char** argv){
 		continue;
       }
       command = "OPNBX ";
-      char* newcommand = (char*)malloc(strlen(command) + strlen(arg));
+      char* newcommand = (char*)malloc(strlen(command) + strlen(arg)+1);
       strcat(newcommand, command);
       strcat(newcommand, arg);
       sendMessage(sd, newcommand);
@@ -267,6 +192,10 @@ int main(int argc, char** argv){
     }else{
       printf("%s", errorChecker(buffer));
     }
+    
+    //memset(command, 0, strlen(command));
+    //memset(arg, 0, strlen(arg));
+
   }
 
   return 0;

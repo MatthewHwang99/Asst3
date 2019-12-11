@@ -54,3 +54,97 @@ int checkExistingBoxName(char* name, struct messageBox* boxList){
 	
 	return -1;
 }
+
+//gets message from queue and sends to sd
+void pop(int sd, struct messageBox* ptr){
+  struct message* temp = ptr->mymsg;
+  char* retval = "OK!";
+  int len = strlen(temp->msg);
+  char* length;
+  sprintf(length, "%d", len);
+  strcat(retval, length);
+  strcat(retval, "!");
+  strcat(retval, temp->msg);
+  sendMessage(sd, retval);
+  ptr->mymsg = temp->next;
+  free(temp);
+  return;
+}
+
+char* commandSwitch(char* command){
+  char* ret = (char*)malloc(6);
+  int i;
+  for(i = 0; i < 5; i++){
+    ret[i] = command[i];
+  }
+  ret[6] = '\0';
+  return ret;
+}
+
+char* errorChecker(char* ret){
+  char* returnval;
+  if(strcmp(ret, "ER:WHAT?") == 0){
+    returnval = "Your message is in some way broken or malformed.\n";
+    return returnval;
+  }else if(strcmp(ret, "ER:EXIST") == 0){
+    returnval = "A box with that name already exists and it can not be created again.\n";
+    return returnval;
+  }if(strcmp(ret, "ER:NEXST") == 0){
+    returnval = "A box with that name does not exist, so it can not be opened.\n";
+    return returnval;
+  }else if(strcmp(ret, "ER:OPEND") == 0){
+    returnval = "A box with that name is currently opened by another use, so you can not open it.\n";
+    return returnval;
+  }if(strcmp(ret, "ER:EMPTY") == 0){
+    returnval = "There are no messages left in this message box.\n";
+    return returnval;
+  }else if(strcmp(ret, "ER:NOOPN") == 0){
+    returnval = "You currently have no message box open.\n";
+    return returnval;
+  }if(strcmp(ret, "ER:NOTMT") == 0){
+    returnval = "The box you are attempting to delete is not empty and still has messages.\n";
+    return returnval;
+  }else{
+    returnval = "OK!";
+  }
+  return returnval;
+}
+
+int nameCheck(char* name){
+  int size = strlen(name);
+  char first = name[0];
+  if(size >= 5 && size <= 25 && ((first >= 'A' && first <= 'Z') || (first >= 'a' && first <= 'z'))){
+    //valid name
+    return 0;
+  }
+  //invalid name
+  return 1;
+}
+
+void help(){
+  printf("List of commands:\n");
+  printf("--help\n--quit\n--create\n--open\n--next\n--put\n--delete\n--close\n");
+  return;
+}
+
+int commandCheck(char* command){
+  if(strcmp(command, "help\0") == 0){
+    return 0;
+  }else if(strcmp(command, "quit") == 0){
+    return 1;
+  }else if(strcmp(command, "create") == 0){
+    return 2;
+  }else if(strcmp(command, "open") == 0){
+    return 3;
+  }else if(strcmp(command, "next") == 0){
+    return 4;
+  }else if(strcmp(command, "put") == 0){
+    return 5;
+  }else if(strcmp(command, "delete") == 0){
+    return 6;
+  }else if(strcmp(command, "close") == 0){
+    return 7;
+  }
+  return -1;
+}
+

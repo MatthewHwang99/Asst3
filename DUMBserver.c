@@ -207,21 +207,6 @@ int DELBX(char* name){
 	free(temp);
 	return 1;
 }
-//gets message from queue and sends to client
-void pop(int sd, struct messageBox* ptr){
-  struct message* temp = ptr->mymsg;
-  char* retval = "OK!";
-  int len = strlen(temp->msg);
-  char* length;
-  sprintf(length, "%d", len);
-  strcat(retval, length);
-  strcat(retval, "!");
-  strcat(retval, temp->msg);
-  sendMessage(sd, retval);
-  ptr->mymsg = temp->next;
-  free(temp);
-  return;
-}
 
 void* receiveCommands(void* args){
 	struct thread* client = (struct thread*)args;
@@ -230,6 +215,7 @@ void* receiveCommands(void* args){
 	char* command = (char*)malloc(sizeof(char)*10);
 	char* msg;
 	int valread, i;
+	int hasBox = 0;
 	
 	readMessage(sd, action);
 	
@@ -251,12 +237,14 @@ void* receiveCommands(void* args){
 		char command[6];
 		strncpy(command, action, 5);
 		command[5] = '\0';
+		
+		printf("Command: %s\n", command);
 	
 		if(strcmp(command, "GDBYE") == 0){
 			break;
 		}else if(strcmp(command, "CREAT") == 0){
 			char* boxName = &action[6];
-			if(checkExistingBoxName(boxName, boxList) == 1){
+			if(checkExistingBoxName(boxName, boxList) == -1){
 				CREAT(boxName);
 				sendMessage(sd, "OK!");
 			}else{
@@ -277,19 +265,19 @@ void* receiveCommands(void* args){
 				sendMessage(sd, "ER:NEXST");
 			}
 		}else if(strcmp(command, "NXTMG") == 0){
-		  if(current == NULL){
-		    sendMessage(sd, "ER:NOOPN");
-		  }else if(current->mymsg == NULL){
-		    sendMessage(sd, "ER:EMPTY");
-		  }else{
-		    pop(sd, current);
-		  }
+		 	if(current == NULL){
+		    	sendMessage(sd, "ER:NOOPN");
+		 	}else if(current->mymsg == NULL){
+		    	sendMessage(sd, "ER:EMPTY");
+		  	}else{
+		    	pop(sd, current);
+		  	}
 		}else if(strcmp(command, "PUTMG") == 0){
-		  if(current == NULL){
-		    sendMessage(sd, "ER:NOOPN");
-		  }else{
-		    pop(sd, current);
-		  }
+		 	 if(current == NULL){
+		  	 	sendMessage(sd, "ER:NOOPN");
+		  	}else{
+		  	 	pop(sd, current);
+		 	}
 		}else if(strcmp(command, "DELBX") == 0){
 			char* boxName = &action[6];
 			status = checkExistingBoxName(boxName, boxList);
