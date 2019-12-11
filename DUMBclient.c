@@ -171,14 +171,15 @@ int main(int argc, char** argv){
       //create
       printf("%s:> ", command);
       scanf("%s", arg);
-      printf("%s\n", arg);
       if(nameCheck(arg)){
 	printf("Error. %s isn't a valid name.\n", arg);
 	continue;
       }
       command = "CREAT ";
-      strcat(command, arg);
-      sendMessage(sd, command);
+      char* newcommand = (char*)malloc(strlen(command) + strlen(arg));
+      strcat(newcommand, command);
+      strcat(newcommand, arg);
+      sendMessage(sd, newcommand);
     }else if(commandCheck(command) == 3){
       //open
       printf("%s:> ", command);
