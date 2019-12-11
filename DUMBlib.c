@@ -148,3 +148,14 @@ int commandCheck(char* command){
   return -1;
 }
 
+int convertHostname(char* hostname){
+	struct hostent* h;
+	
+	h = gethostbyname(hostname);
+	char* ip = inet_ntoa(*((struct in_addr*)h->h_addr_list[0]));
+	
+	
+	return atoi(ip);
+}
+
+

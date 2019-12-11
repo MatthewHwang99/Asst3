@@ -17,6 +17,7 @@
 #include<netinet/in.h>
 #include<math.h>
 #include<pthread.h>
+#include<arpa/inet.h>
 
 //structs used by server
 struct thread{
@@ -55,6 +56,7 @@ void help();
 int nameCheck(char*);
 char* errorChecker(char*);
 char* commandSwitch(char*);
+int convertHostname(char*);
 
 //used by both
 int sendMessage(int, char*);

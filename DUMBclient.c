@@ -10,7 +10,6 @@
 #include<unistd.h>
 
 
-
 //int successCheck(char*);
 /*Function for when the server returns "OK!"
 int successCheck(char* command){
@@ -46,9 +45,8 @@ int main(int argc, char** argv){
   	return 0;
   }
   
-  int port = atoi(argv[2]);
-  //struct hostent* server = gethostbyname(argv[1]);
-  
+  char* port = argv[2];
+    
   struct sockaddr_in server_addr, client;
   int sd, connection, validAddr, valread;
   //char buffer[1024] = {0};
@@ -63,11 +61,37 @@ int main(int argc, char** argv){
   
   server_addr.sin_family = AF_INET;
   server_addr.sin_addr.s_addr = inet_addr(argv[1]);
-  server_addr.sin_port = htons(port);
+  server_addr.sin_port = htons(atoi(port));
   
   if((connection = connect(sd, (struct sockaddr*)&server_addr, sizeof(server_addr))) == -1){
-  	printf("Connection failed.\n");
+  	char* host = argv[1];
+  	struct addrinfo hints;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family=AF_INET;
+	hints.ai_socktype=SOCK_STREAM;
+	hints.ai_flags = AI_ADDRCONFIG | AI_ALL;
+	struct addrinfo* ret;
+	if(getaddrinfo(host, port, &hints, &ret)!=0){
+		printf("Fatal Error: Failed to get ip for given hostname %s\n", host);
+		free(host);
+		close(sd);
+		exit(0);
+	}
+	
+	/*char addrstr[100];
+	if(getnameinfo(ret->ai_addr, ret->ai_addrlen, addrstr, 100, NULL, 0, NI_NUMERICHOST)!=0){
+		printf("Fatal Error: Failed to get ip for given hostname %s\n", host);
+		free(host);
+		close(sd);
+		exit(0);
+	}*/
+	
+  	if((connection = connect(sd, ret->ai_addr, ret->ai_addrlen)) == -1){
+  		printf("Connection failed.\n");
+  		exit(0);
+  	}
   }
+  
  
   //E.0 HELLO
 
