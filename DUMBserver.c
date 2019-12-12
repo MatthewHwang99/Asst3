@@ -210,6 +210,20 @@ int OPNBX(char* name){
  	
 }
 
+int PUTMG(char* message, struct messageBox** box){
+  struct message *ptr = (struct message*)malloc(sizeof(message));
+  struct message *new = (struct message*)malloc(sizeof(message));
+  new->msg = message;
+  new->next = NULL;
+  ptr = (*box)->mymsg;
+  while(ptr->next != NULL){
+    ptr = ptr->next;
+  }
+  ptr->next = new;
+  return 1;
+}
+
+/*
 int PUTMG(char* name, char* msg){
 	struct messageBox* temp = boxList;
 	
@@ -240,7 +254,7 @@ int PUTMG(char* name, char* msg){
 	
 	return 1;
 }
-
+*/
 int DELBX(char* name){
 	struct messageBox* temp = boxList;
 	struct messageBox* prev = NULL;
@@ -319,7 +333,6 @@ void* receiveCommands(void* args){
 		memset(action, 0, 100);
 		readMessage(sd, action);
 		//printBoxes();
-		
 		status = 0;
 		char* command = malloc(10);
 		strncpy(command, action, 5);
@@ -371,7 +384,20 @@ void* receiveCommands(void* args){
 		 	if(current == NULL){
 		  	 	sendMessage(sd, "ER:NOOPN");
 		  	}else{
-		  	 	//parse the string here: PUTMG!12!Oh hai, Mark!
+			  //parse the string here: PUTMG!12!Oh hai, Mark!
+			  char *input = (char*)malloc(strlen(action));
+			  input = action;
+			  char* p;
+			  int size;
+			  p = strtok(input, "!");
+			  p = strtok(NULL, "!");
+			  size = atoi(p);
+			  p = strtok(NULL, "!");
+			  PUTMG(p, &current);
+			  char* returnvalue = (char*)malloc(strlen(p));
+			  returnvalue = "OK!";
+			  strncat(returnvalue, p, strlen(p));
+			  sendMessage(sd, returnvalue);
 		 	}
 		}else if(strcmp(command, "DELBX") == 0){
 			char* boxName = malloc(strlen(action));

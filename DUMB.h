@@ -56,7 +56,7 @@ void help();
 int nameCheck(char*);
 char* errorChecker(char*);
 char* createCommand(char*, char*);
-
+char* createPUT(char*, char*);
 //used by both
 int sendMessage(int, char*);
 char* readMessage(int, char*);

@@ -127,5 +127,16 @@ char* createCommand(char* command, char* arg0){
 	return res;
 }
 
-
+char* createPUT(char* command, char* arg0){
+  char str[100];
+  sprintf(str, "%d", strlen(arg0));
+  char* res = malloc(strlen(command)+strlen(arg0)+strlen(str)+2);
+  strcpy(res, command);
+  strcat(res, str);
+  strcat(res, "!");
+  printf("%d\n", strlen(arg0));
+  strncat(res, arg0, strlen(arg0));
+  
+  return res;
+}
 
