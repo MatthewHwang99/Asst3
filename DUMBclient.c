@@ -153,12 +153,18 @@ int main(int argc, char** argv){
     }else if(strcmp(command, "put") == 0){
       //put
       printf("%s:> ", command);
-      char *i;
+      /*char *i;
       while(*i != '\n'){
-	scanf("%c", i);
-	strcat(arg, i);
-      }
+		scanf("%c", i);
+		arg[i];
+      }*/
+     // scanf("", arg);
+      //scanf("%s", arg);
+  
+      scanf("%[^\n]", arg);
       printf("%s\n", arg);
+    	
+      
       command = "PUTMG!";
       char* newcommand = createPUT(command, arg);
       /*char* size;
@@ -179,13 +185,13 @@ int main(int argc, char** argv){
       str = "DELBX ";
       char* newcommand = createCommand(str, arg);
       sendMessage(sd, newcommand);
-    }else if(strcmp(command, "close")){
+    }else if(strcmp(command, "close") == 0){
       //close
       printf("%s:> ", command);
       scanf("%s", arg);
       if(nameCheck(arg)){
-	printf("Error. %s isn't a valid name.\n", arg);
-	continue;
+		printf("Error. %s isn't a valid name.\n", arg);
+		continue;
       }
       str = "CLSBX ";
       char* newcommand = createCommand(str, arg);
@@ -199,31 +205,27 @@ int main(int argc, char** argv){
     readMessage(sd, buffer);
     
     if(strcmp("OK!", errorChecker(buffer)) == 0){
-      if(strcmp(command, "CREAT") == 0){
+      if(strcmp(str, "CREAT ") == 0){
 		printf("Box successfully created.\n");
-      }else if(strcmp(command, "OPNBX") == 0){
+      }else if(strcmp(str, "OPNBX ") == 0){
 		printf("Box successfully opened.\n");
-      }else if(strcmp(command, "NXTMG") == 0){
+      }else if(strcmp(str, "NXTMG") == 0){
 		char* token = strtok(buffer, "!");
 		int i;
 		for(i = 0; i < 2; i++){
 	 	 token = strtok(NULL, "!");
 		}
 		printf("%s\n", token);
-      }else if(strcmp(command, "PUTMG") == 0){
+      }else if(strcmp(str, "PUTMG") == 0){
 		printf("Message successfully put\n");
-      }else if(strcmp(command, "DELBX") == 0){
+      }else if(strcmp(str, "DELBX ") == 0){
 		printf("Successfully deleted a message box.\n");
-      }else if(strcmp(command, "CLSBX") == 0){
+      }else if(strcmp(str, "CLSBX ") == 0){
 		printf("Successfully closed box.\n");
       }
     }else{
       printf("%s", errorChecker(buffer));
     }
-    	
-    //memset(command, 0, strlen(command));
-    //memset(arg, 0, strlen(arg));
-
   }
 
   return 0;

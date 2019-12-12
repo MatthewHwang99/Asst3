@@ -269,7 +269,7 @@ int DELBX(char* name){
 	
 	if(pthread_mutex_trylock(&temp->box_lock) == 0){
 		pthread_mutex_unlock(&temp->box_lock);
-		if(temp->mymsg == NULL){
+		if(temp->mymsg != NULL){ //box is not empty, can't be deleted yet
 			return -2;
 		}
 		if(prev == NULL){
