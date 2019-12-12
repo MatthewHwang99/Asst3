@@ -220,6 +220,7 @@ int PUTMG(char* message, struct messageBox** box){
     ptr = ptr->next;
   }
   ptr->next = new;
+  printf("%s\n", (*box)->mymsg->msg);
   return 1;
 }
 
@@ -374,11 +375,11 @@ void* receiveCommands(void* args){
 			}
 		}else if(strcmp(command, "NXTMG") == 0){
 		 	if(current == NULL){
-		    	sendMessage(sd, "ER:NOOPN");
+			  sendMessage(sd, "ER:NOOPN");
 		 	}else if(current->mymsg == NULL){
-		    	sendMessage(sd, "ER:EMPTY");
+			  sendMessage(sd, "ER:EMPTY");
 		  	}else{
-		    	pop(sd, current);
+			  pop(sd, current);
 		  	}
 		}else if(strcmp(command, "PUTMG") == 0){
 		 	if(current == NULL){

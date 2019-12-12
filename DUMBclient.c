@@ -152,13 +152,30 @@ int main(int argc, char** argv){
       sendMessage(sd, command);      
     }else if(strcmp(command, "put") == 0){
       //put
+      
       printf("%s:> ", command);
+
       //scanf("%[^\n]s", arg);
-      scanf("%s", arg);
+      //scanf("%s", arg);
     	
       
       str = "PUTMG!";
       char* newcommand = createPUT(str, arg);
+
+      /*char *i;
+      while(*i != '\n'){
+		scanf("%c", i);
+		arg[i];
+      }*/
+
+      // scanf("", arg);
+      printf("Please input a message with no whitespaces.\n");
+      scanf("%s", arg);
+  
+
+      char* str = "PUTMG!";
+      char* newcommand = createPUT(str, arg);
+
       printf("%s\n", newcommand);
       sendMessage(sd, newcommand);      
     }else if(strcmp(command, "delete") == 0){
