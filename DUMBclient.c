@@ -160,7 +160,7 @@ int main(int argc, char** argv){
     	
       
       str = "PUTMG!";
-      char* newcommand = createPUT(str, arg);
+     // char* newcommand = createPUT(str, arg);
 
       /*char *i;
       while(*i != '\n'){

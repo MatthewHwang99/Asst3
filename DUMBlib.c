@@ -80,20 +80,23 @@ char* errorChecker(char* ret){
   }else if(strcmp(ret, "ER:EXIST") == 0){
     returnval = "A box with that name already exists and it can not be created again.\n";
     return returnval;
-  }if(strcmp(ret, "ER:NEXST") == 0){
+  }else if(strcmp(ret, "ER:NEXST") == 0){
     returnval = "A box with that name does not exist, so it can not be opened.\n";
     return returnval;
   }else if(strcmp(ret, "ER:OPEND") == 0){
     returnval = "A box with that name is currently opened by another user, so you can not open it.\n";
     return returnval;
-  }if(strcmp(ret, "ER:EMPTY") == 0){
+  }else if(strcmp(ret, "ER:EMPTY") == 0){
     returnval = "There are no messages left in this message box.\n";
     return returnval;
   }else if(strcmp(ret, "ER:NOOPN") == 0){
     returnval = "You currently have no message box open.\n";
     return returnval;
-  }if(strcmp(ret, "ER:NOTMT") == 0){
+  }else if(strcmp(ret, "ER:NOTMT") == 0){
     returnval = "The box you are attempting to delete is not empty and still has messages.\n";
+    return returnval;
+  }else if(strcmp(ret, "ER:BXOPN") == 0){
+    returnval = "You are attempting to open a box when you already have a box open.\n";
     return returnval;
   }else{
     returnval = "OK!";
