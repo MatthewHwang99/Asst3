@@ -153,25 +153,12 @@ int main(int argc, char** argv){
     }else if(strcmp(command, "put") == 0){
       //put
       printf("%s:> ", command);
-      /*char *i;
-      while(*i != '\n'){
-		scanf("%c", i);
-		arg[i];
-      }*/
-     // scanf("", arg);
-      //scanf("%s", arg);
-  
-      scanf("%[^\n]", arg);
-      printf("%s\n", arg);
+      //scanf("%[^\n]s", arg);
+      scanf("%s", arg);
     	
       
-      command = "PUTMG!";
-      char* newcommand = createPUT(command, arg);
-      /*char* size;
-      sprintf(size, "%d", strlen(arg));
-      strcat(size, "!");
-      strcat(command, size);
-      strcat(command, arg);*/
+      str = "PUTMG!";
+      char* newcommand = createPUT(str, arg);
       printf("%s\n", newcommand);
       sendMessage(sd, newcommand);      
     }else if(strcmp(command, "delete") == 0){

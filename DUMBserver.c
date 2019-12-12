@@ -223,8 +223,8 @@ int PUTMG(char* message, struct messageBox** box){
   return 1;
 }
 
-/*
-int PUTMG(char* name, char* msg){
+
+/*int PUTMG(char* name, char* msg){
 	struct messageBox* temp = boxList;
 	
 	while(temp!=NULL){
@@ -253,8 +253,8 @@ int PUTMG(char* name, char* msg){
 	}
 	
 	return 1;
-}
-*/
+}*/
+
 int DELBX(char* name){
 	struct messageBox* temp = boxList;
 	struct messageBox* prev = NULL;
